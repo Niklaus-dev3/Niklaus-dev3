@@ -39,11 +39,10 @@ Ainda estou crescendo como dev, mas já sei entregar algo que funciona de verdad
 
 **No momento**
 
-Estou expandindo o TOJI com integração de dados climáticos via Chainlink Oracle e planejando o deploy na Polygon Mainnet. Aberto a freelas e oportunidades em Web3.
+Desenvolvendo o TOJI Rewards — um sistema de recompensas em tokens onde qualquer pessoa pode conectar a carteira e ganhar crypto sem precisar entender nada de blockchain por baixo. A ideia é que Web3 seja simples de usar, não só de construir.
+
+Ainda explorando para onde o projeto vai. Aberto a freelas e oportunidades em Web3.
 
 ---
-
-<div align="center">
-
 ![Profile Views](https://komarev.com/ghpvc/?username=Niklaus-dev3&color=7C3AED&style=flat-square&label=visitas)
 
