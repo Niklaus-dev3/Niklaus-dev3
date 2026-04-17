@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOJI TOKEN — Earn. Trade. Dominate.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+<style>
+/* ============================================================
+   TOJI TOKEN — CSS Variables & Reset
+   ============================================================ */
+:root {
+  --black:      #040406;
+  --void:       #07070d;
+  --surface:    #0d0d18;
+  --surface2:   #12121f;
+  --border:     #1e1e35;
+  --purple-deep:#2a0a4a;
+  --purple-mid: #4a1a8a;
+  --purple:     #7b2fff;
+  --purple-glow:#9b5fff;
+  --purple-pale: #c8a0ff;
+  --white:      #f0eeff;
+  --gray:       #6e6e9a;
+  --gray-light: #9898b8;
+  --success:    #00e5a0;
+  --error:      #ff4466;
+  --warn:       #ffaa00;
+
+  --font-head:  'Syne', sans-serif;
+  --font-mono:  'IBM Plex Mono', monospace;
+
+  --radius:     12px;
+  --radius-lg:  20px;
+  --glow:       0 0 30px rgba(123,47,255,0.35), 0 0 60px rgba(123,47,255,0.15);
+  --glow-sm:    0 0 15px rgba(123,47,255,0.4);
+  --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   NOISE TEXTURE OVERLAY
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.5;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--purple-mid); border-radius: 4px; }
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+h1, h2, h3, h4 {
+  font-family: var(--font-head);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section {
+  padding: 120px 0;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-label::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--purple);
+}
+
+.section-title {
+  font-size: clamp(32px, 5vw, 52px);
+  margin-bottom: 20px;
+  color: var(--white);
+}
+
+.section-subtitle {
+  color: var(--gray-light);
+  max-width: 540px;
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.05);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.btn:hover::after { opacity: 1; }
+
+.btn-primary {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: var(--glow-sm);
+}
+.btn-primary:hover {
+  background: var(--purple-glow);
+  box-shadow: var(--glow);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--purple-pale);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover {
+  border-color: var(--purple);
+  color: var(--white);
+  background: rgba(123,47,255,0.08);
+}
+
+.btn-ghost {
+  background: rgba(123,47,255,0.1);
+  color: var(--purple-pale);
+  border: 1px solid rgba(123,47,255,0.25);
+}
+.btn-ghost:hover {
+  background: rgba(123,47,255,0.2);
+  border-color: var(--purple);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 16px 0;
+  transition: background var(--transition), backdrop-filter var(--transition);
+}
+
+.navbar.scrolled {
+  background: rgba(4,4,6,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--white);
+  letter-spacing: -0.02em;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--purple);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--glow-sm);
+  font-size: 16px;
+  font-weight: 800;
+  font-family: var(--font-head);
+  color: white;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+
+.navbar-links a {
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--gray-light);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  transition: var(--transition);
+}
+.navbar-links a:hover {
+  color: var(--white);
+  background: rgba(123,47,255,0.1);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#walletBtn {
+  padding: 10px 20px;
+  font-size: 12px;
+}
+
+.wallet-address {
+  font-size: 12px;
+  color: var(--purple-pale);
+  background: rgba(123,47,255,0.1);
+  border: 1px solid rgba(123,47,255,0.25);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--white);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0 80px;
+}
+
+/* Animated background */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(42,10,74,0.7) 0%, var(--black) 70%);
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.hero-orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(123,47,255,0.2) 0%, transparent 70%);
+  top: -200px; left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 0s;
+}
+.hero-orb-2 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(74,26,138,0.3) 0%, transparent 70%);
+  top: 30%; right: 5%;
+  animation-delay: -3s;
+}
+.hero-orb-3 {
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(155,95,255,0.2) 0%, transparent 70%);
+  bottom: 20%; left: 8%;
+  animation-delay: -5s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+
+/* Grid overlay */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(123,47,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123,47,255,0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 80%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(123,47,255,0.12);
+  border: 1px solid rgba(123,47,255,0.3);
+  border-radius: 100px;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.15em;
+  color: var(--purple-pale);
+  margin-bottom: 32px;
+  animation: fadeUp 0.8s ease both;
+}
+
+.hero-badge .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--purple);
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(123,47,255,0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 6px transparent; }
+}
+
+.hero-title {
+  font-size: clamp(56px, 10vw, 110px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin-bottom: 16px;
+  animation: fadeUp 0.8s 0.1s ease both;
+}
+
+.hero-title .gradient-text {
+  background: linear-gradient(135deg, var(--white) 0%, var(--purple-pale) 50%, var(--purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-tagline {
+  font-family: var(--font-head);
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight: 600;
+  color: var(--gray-light);
+  letter-spacing: 0.1em;
+  margin-bottom: 48px;
+  animation: fadeUp 0.8s 0.2s ease both;
+}
+
+.hero-tagline span { color: var(--purple-pale); }
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.3s ease both;
+}
+
+.hero-actions .btn-primary { padding: 16px 36px; font-size: 14px; }
+.hero-actions .btn-outline { padding: 16px 36px; font-size: 14px; }
+
+.hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 80px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s 0.4s ease both;
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat-value {
+  font-family: var(--font-head);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.02em;
+}
+
+.hero-stat-label {
+  font-size: 11px;
+  color: var(--gray);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.hero-stat-sep {
+  width: 1px;
+  height: 40px;
+  background: var(--border);
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--gray);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  animation: fadeUp 1s 0.6s ease both;
+}
+
+.scroll-indicator .arrow {
+  width: 20px;
+  height: 20px;
+  border-right: 1px solid var(--gray);
+  border-bottom: 1px solid var(--gray);
+  transform: rotate(45deg);
+  animation: scrollBounce 2s ease infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: rotate(45deg) translateY(0); opacity: 1; }
+  50% { transform: rotate(45deg) translateY(6px); opacity: 0.4; }
+}
+
+/* ============================================================
+   HOW TO BUY SECTION
+   ============================================================ */
+.buy-section { background: var(--void); }
+
+.buy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.buy-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 40px;
+}
+
+.buy-step {
+  display: flex;
+  gap: 20px;
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+.buy-step:hover {
+  border-color: rgba(123,47,255,0.4);
+  background: var(--surface2);
+}
+
+.step-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(123,47,255,0.15);
+  border: 1px solid rgba(123,47,255,0.3);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--purple);
+  flex-shrink: 0;
+}
+
+.step-content h4 {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--white);
+}
+.step-content p {
+  font-size: 13px;
+  color: var(--gray-light);
+}
+
+.buy-action {
+  position: sticky;
+  top: 100px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+}
+
+.buy-action-title {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.price-display {
+  background: var(--void);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.price-value {
+  font-family: var(--font-head);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--white);
+}
+.price-change {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--success);
+  background: rgba(0,229,160,0.1);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+.price-label {
+  font-size: 11px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.buy-action .btn { width: 100%; justify-content: center; margin-top: 8px; }
+
+/* ============================================================
+   EARN / CLAIM SECTION
+   ============================================================ */
+.earn-section { background: var(--black); }
+
+.earn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.claim-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.claim-card::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(123,47,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.claim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.claim-title {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.network-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--purple-pale);
+  background: rgba(123,47,255,0.1);
+  border: 1px solid rgba(123,47,255,0.25);
+  border-radius: 6px;
+  padding: 4px 10px;
+}
+
+.network-badge .dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--purple);
+  animation: pulse 2s ease infinite;
+}
+
+.claim-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.claim-stat {
+  background: var(--void);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.claim-stat-label {
+  font-size: 10px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+
+.claim-stat-value {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--white);
+}
+
+.cooldown-bar {
+  background: var(--border);
+  height: 4px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 16px 0 8px;
+}
+
+.cooldown-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple-mid), var(--purple));
+  border-radius: 4px;
+  transition: width 1s linear;
+  box-shadow: var(--glow-sm);
+}
+
+.cooldown-text {
+  font-size: 12px;
+  color: var(--gray-light);
+  margin-bottom: 24px;
+}
+
+#claimBtn { width: 100%; justify-content: center; font-size: 15px; padding: 18px; }
+
+.earn-info { padding: 20px; }
+
+.earn-features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 32px;
+}
+
+.earn-feature {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(123,47,255,0.1);
+  border: 1px solid rgba(123,47,255,0.2);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.feature-text h4 {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.feature-text p { font-size: 13px; color: var(--gray-light); }
+
+/* ============================================================
+   TOKENOMICS
+   ============================================================ */
+.tokenomics-section { background: var(--void); }
+
+.tokenomics-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-top: 60px;
+}
+
+.token-chart-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.token-chart {
+  width: 300px;
+  height: 300px;
+  position: relative;
+}
+
+.chart-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.chart-center-value {
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--white);
+}
+
+.chart-center-label {
+  font-size: 10px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.token-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.token-bar-item {}
+
+.token-bar-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.token-bar-name {
+  font-family: var(--font-head);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.token-bar-pct {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--purple-pale);
+}
+
+.token-bar-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.token-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+  width: 0;
+}
+
+.token-bar-fill.purple { background: linear-gradient(90deg, var(--purple-mid), var(--purple)); box-shadow: var(--glow-sm); }
+.token-bar-fill.blue   { background: linear-gradient(90deg, #1a4a8a, #2b7fff); }
+.token-bar-fill.teal   { background: linear-gradient(90deg, #0a4a3a, #00c8a0); }
+.token-bar-fill.pink   { background: linear-gradient(90deg, #4a0a2a, #ff2b7f); }
+
+.token-bar-desc {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 6px;
+}
+
+.tokenomics-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 60px;
+}
+
+.tstat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  transition: var(--transition);
+}
+.tstat:hover { border-color: rgba(123,47,255,0.4); }
+
+.tstat-value {
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--purple-pale);
+  margin-bottom: 6px;
+}
+
+.tstat-label {
+  font-size: 11px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   CONTRACT
+   ============================================================ */
+.contract-section { background: var(--black); }
+
+.contract-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px;
+  max-width: 720px;
+  margin: 60px auto 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.contract-card::before {
+  content: '';
+  position: absolute;
+  bottom: -80px; right: -80px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(123,47,255,0.1) 0%, transparent 70%);
+}
+
+.contract-label {
+  font-size: 11px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 12px;
+}
+
+.address-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--void);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.address-text {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--purple-pale);
+  word-break: break-all;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  color: var(--gray);
+  cursor: pointer;
+  padding: 4px;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.copy-btn:hover { color: var(--purple); }
+.copy-btn svg { width: 18px; height: 18px; }
+
+.contract-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.contract-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.meta-item-label {
+  font-size: 10px;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+
+.meta-item-value {
+  font-family: var(--font-head);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+/* ============================================================
+   SOCIAL / COMMUNITY
+   ============================================================ */
+.social-section { background: var(--void); }
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 56px;
+}
+
+.social-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 24px;
+  text-align: center;
+  text-decoration: none;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  display: block;
+}
+
+.social-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(123,47,255,0.05) 100%);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.social-card:hover::before { opacity: 1; }
+.social-card:hover { border-color: rgba(123,47,255,0.5); transform: translateY(-4px); }
+
+.social-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  transition: var(--transition);
+}
+.social-card:hover .social-icon { box-shadow: var(--glow-sm); }
+
+.social-icon.twitter { background: rgba(29,161,242,0.15); border: 1px solid rgba(29,161,242,0.25); }
+.social-icon.telegram { background: rgba(0,136,204,0.15); border: 1px solid rgba(0,136,204,0.25); }
+.social-icon.discord  { background: rgba(88,101,242,0.15); border: 1px solid rgba(88,101,242,0.25); }
+.social-icon.web      { background: rgba(123,47,255,0.15); border: 1px solid rgba(123,47,255,0.25); }
+
+.social-name {
+  font-family: var(--font-head);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+
+.social-handle {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background: var(--void);
+  border-top: 1px solid var(--border);
+  padding: 60px 0 32px;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 60px;
+  margin-bottom: 48px;
+}
+
+.footer-brand p {
+  font-size: 13px;
+  color: var(--gray);
+  margin-top: 16px;
+  max-width: 280px;
+  line-height: 1.7;
+}
+
+.footer-col-title {
+  font-family: var(--font-head);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.footer-links a {
+  text-decoration: none;
+  font-size: 13px;
+  color: var(--gray);
+  transition: var(--transition);
+}
+.footer-links a:hover { color: var(--purple-pale); }
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--gray);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-bottom a { color: var(--gray); text-decoration: none; transition: var(--transition); }
+.footer-bottom a:hover { color: var(--purple-pale); }
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+.toast-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.toast {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  min-width: 280px;
+  max-width: 380px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.4s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.toast.success { border-left: 3px solid var(--success); }
+.toast.error   { border-left: 3px solid var(--error); }
+.toast.info    { border-left: 3px solid var(--purple); }
+.toast.warning { border-left: 3px solid var(--warn); }
+
+.toast-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.toast-body {}
+.toast-title { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--white); }
+.toast-msg   { font-size: 12px; color: var(--gray-light); margin-top: 2px; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   LOADING SPINNER
+   ============================================================ */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   SVG DONUT CHART
+   ============================================================ */
+.donut-svg { transform: rotate(-90deg); }
+.donut-segment { transition: stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .buy-grid,
+  .earn-grid,
+  .tokenomics-grid,
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .social-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tokenomics-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .contract-meta {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .navbar-links,
+  .navbar-actions .btn-outline {
+    display: none;
+  }
+
+  .hamburger { display: flex; }
+
+  .hero-stats { gap: 24px; }
+  .hero-stat-sep { display: none; }
+
+  .buy-action { position: static; }
+
+  .token-chart-wrapper { order: -1; }
+}
+
+@media (max-width: 560px) {
+  .section { padding: 80px 0; }
+  .social-grid { grid-template-columns: 1fr 1fr; }
+  .tokenomics-stats { grid-template-columns: 1fr; }
+  .contract-meta { grid-template-columns: 1fr; }
+  .hero-actions { flex-direction: column; align-items: center; }
+  .hero-actions .btn { width: 100%; max-width: 300px; justify-content: center; }
+  .claim-stats { grid-template-columns: 1fr; }
+}
+
+/* Mobile nav drawer */
+.mobile-nav {
+  position: fixed;
+  top: 0; right: 0;
+  width: 280px;
+  height: 100vh;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 2000;
+  padding: 80px 32px 32px;
+  transform: translateX(100%);
+  transition: transform var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mobile-nav.open { transform: translateX(0); }
+.mobile-nav a {
+  display: block;
+  padding: 14px 0;
+  text-decoration: none;
+  color: var(--gray-light);
+  font-size: 15px;
+  font-family: var(--font-mono);
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
+.mobile-nav a:hover { color: var(--white); }
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+.nav-overlay.open { opacity: 1; pointer-events: all; }
+
+.close-nav {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: none; border: none;
+  color: var(--gray); cursor: pointer;
+  font-size: 24px;
+}
+</style>
+</head>
+<body>
+
+<!-- ====================================================
+     MOBILE NAV OVERLAY
+     ==================================================== -->
+<div class="nav-overlay" id="navOverlay" onclick="closeMobileNav()"></div>
+<nav class="mobile-nav" id="mobileNav">
+  <button class="close-nav" onclick="closeMobileNav()">✕</button>
+  <a href="#hero" onclick="closeMobileNav()">Início</a>
+  <a href="#comprar" onclick="closeMobileNav()">Comprar</a>
+  <a href="#ganhar" onclick="closeMobileNav()">Ganhar</a>
+  <a href="#tokenomics" onclick="closeMobileNav()">Tokenomics</a>
+  <a href="#contrato" onclick="closeMobileNav()">Contrato</a>
+  <a href="#redes" onclick="closeMobileNav()">Redes Sociais</a>
+</nav>
+
+<!-- ====================================================
+     TOAST CONTAINER
+     ==================================================== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ====================================================
+     NAVBAR
+     ==================================================== -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="navbar-inner">
+      <a href="#hero" class="navbar-logo">
+        <div class="logo-icon">T</div>
+        TOJI
+      </a>
+
+      <ul class="navbar-links">
+        <li><a href="#hero">Início</a></li>
+        <li><a href="#comprar">Comprar</a></li>
+        <li><a href="#ganhar">Ganhar</a></li>
+        <li><a href="#tokenomics">Tokenomics</a></li>
+        <li><a href="#contrato">Contrato</a></li>
+        <li><a href="#redes">Comunidade</a></li>
+      </ul>
+
+      <div class="navbar-actions">
+        <div id="walletDisplay" style="display:none;"></div>
+        <button class="btn btn-outline" id="walletBtn" onclick="connectWallet()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20L16 3z"/></svg>
+          Conectar Carteira
+        </button>
+        <button class="hamburger" onclick="openMobileNav()" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ====================================================
+     HERO
+     ==================================================== -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-grid"></div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        LIVE NA POLYGON NETWORK
+      </div>
+
+      <h1 class="hero-title">
+        <span class="gradient-text">TOJI TOKEN</span>
+      </h1>
+
+      <p class="hero-tagline">
+        <span>Earn.</span> Trade. <span>Dominate.</span>
+      </p>
+
+      <div class="hero-actions">
+        <a href="#comprar" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          Comprar TOJI
+        </a>
+        <a href="#ganhar" class="btn btn-outline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Ganhar TOJI
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">1M</div>
+          <div class="hero-stat-label">Supply Total</div>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">MATIC</div>
+          <div class="hero-stat-label">Rede Base</div>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">1h</div>
+          <div class="hero-stat-label">Cooldown Reward</div>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="userCountStat">—</div>
+          <div class="hero-stat-label">Usuários Ativos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="arrow"></div>
+  </div>
+</section>
+
+<!-- ====================================================
+     BUY SECTION
+     ==================================================== -->
+<section class="section buy-section" id="comprar">
+  <div class="container">
+    <div class="buy-grid">
+      <div class="fade-in">
+        <div class="section-label">Como Comprar</div>
+        <h2 class="section-title">Adquira TOJI<br>em minutos</h2>
+        <p class="section-subtitle">Troque seus tokens MATIC ou USDC pelo TOJI diretamente no QuickSwap, a principal DEX da Polygon.</p>
+
+        <div class="buy-steps">
+          <div class="buy-step">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <h4>Instale a MetaMask</h4>
+              <p>Baixe e configure a extensão MetaMask no seu navegador. Crie ou importe uma carteira.</p>
+            </div>
+          </div>
+          <div class="buy-step">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <h4>Adicione a Polygon Network</h4>
+              <p>Conecte sua carteira e mude para a rede Polygon (Chain ID: 137). Adicione MATIC para pagar o gas.</p>
+            </div>
+          </div>
+          <div class="buy-step">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <h4>Acesse o QuickSwap</h4>
+              <p>Clique em "Comprar no QuickSwap" abaixo. O par TOJI já estará pré-selecionado.</p>
+            </div>
+          </div>
+          <div class="buy-step">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <h4>Execute o Swap</h4>
+              <p>Digite o valor desejado, aprove o token e confirme a transação. TOJI chegará em segundos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="buy-action fade-in">
+        <p class="price-label">Preço Atual TOJI</p>
+        <h3 class="buy-action-title">Compre TOJI</h3>
+
+        <div class="price-display">
+          <div>
+            <div class="price-label">TOJI / USD</div>
+            <div class="price-value" id="priceVal">—</div>
+          </div>
+          <div class="price-change" id="priceChange">Carregando...</div>
+        </div>
+
+        <a href="https://quickswap.exchange/#/swap?outputCurrency=0x2fCFd0596A524A75987468F751Ed0bC8e39c6730"
+           target="_blank" rel="noopener" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16l-4-4 4-4"/><path d="M3 12h14"/><path d="M17 8l4 4-4 4"/><path d="M21 12H7"/></svg>
+          Comprar no QuickSwap
+        </a>
+
+        <button class="btn btn-ghost" style="margin-top: 12px;" onclick="addTokenToWallet()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Adicionar TOJI à Carteira
+        </button>
+
+        <div style="margin-top:24px; padding-top:24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--gray);">
+          Contrato: <span style="color: var(--purple-pale); font-family: var(--font-mono);">0x2fCF...c6730</span>
+          <br>Rede: Polygon (MATIC)
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================
+     EARN SECTION
+     ==================================================== -->
+<section class="section earn-section" id="ganhar">
+  <div class="container">
+    <div class="earn-grid">
+      <div class="claim-card fade-in">
+        <div class="claim-header">
+          <div class="claim-title">Claim Reward</div>
+          <div class="network-badge">
+            <span class="dot"></span>
+            Polygon
+          </div>
+        </div>
+
+        <div class="claim-stats">
+          <div class="claim-stat">
+            <div class="claim-stat-label">Total Ganho</div>
+            <div class="claim-stat-value" id="totalEarned">0</div>
+          </div>
+          <div class="claim-stat">
+            <div class="claim-stat-label">Próximo Claim</div>
+            <div class="claim-stat-value" id="nextClaimDisplay">—</div>
+          </div>
+        </div>
+
+        <div class="cooldown-bar">
+          <div class="cooldown-progress" id="cooldownProgress" style="width: 100%;"></div>
+        </div>
+        <p class="cooldown-text" id="cooldownText">Conecte sua carteira para verificar o cooldown.</p>
+
+        <button class="btn btn-primary" id="claimBtn" onclick="claimReward()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Claim Reward
+        </button>
+
+        <div style="margin-top: 20px; padding: 14px; background: var(--void); border-radius: 8px; border: 1px solid var(--border);">
+          <div style="font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Carteira Conectada</div>
+          <div style="font-family: var(--font-mono); font-size: 13px; color: var(--purple-pale);" id="connectedAddr">Não conectada</div>
+        </div>
+      </div>
+
+      <div class="earn-info fade-in">
+        <div class="section-label">Sistema de Recompensas</div>
+        <h2 class="section-title">Ganhe TOJI<br>a cada hora</h2>
+        <p class="section-subtitle">Interaja com nosso contrato de recompensas e receba TOJI automaticamente. Simples, justo e descentralizado.</p>
+
+        <div class="earn-features">
+          <div class="earn-feature">
+            <div class="feature-icon">⚡</div>
+            <div class="feature-text">
+              <h4>Claim Instantâneo</h4>
+              <p>Recompensas são liberadas diretamente na sua carteira, sem intermediários.</p>
+            </div>
+          </div>
+          <div class="earn-feature">
+            <div class="feature-icon">🔒</div>
+            <div class="feature-text">
+              <h4>Cooldown de 1 Hora</h4>
+              <p>Sistema anti-spam on-chain. Um claim por hora por carteira, garantido pelo contrato.</p>
+            </div>
+          </div>
+          <div class="earn-feature">
+            <div class="feature-icon">🔗</div>
+            <div class="feature-text">
+              <h4>100% On-Chain</h4>
+              <p>Lógica descentralizada na Polygon. Sem servidores centralizados ou custódias.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================
+     TOKENOMICS
+     ==================================================== -->
+<section class="section tokenomics-section" id="tokenomics">
+  <div class="container">
+    <div class="section-label">Distribuição</div>
+    <h2 class="section-title">Tokenomics</h2>
+    <p class="section-subtitle">Supply fixo e distribuição transparente. Sem minting adicional, sem surpresas.</p>
+
+    <div class="tokenomics-grid">
+      <div class="token-bars fade-in">
+        <div class="token-bar-item">
+          <div class="token-bar-header">
+            <span class="token-bar-name">🟣 Liquidez (DEX)</span>
+            <span class="token-bar-pct">50%</span>
+          </div>
+          <div class="token-bar-track">
+            <div class="token-bar-fill purple" data-width="50"></div>
+          </div>
+          <div class="token-bar-desc">500.000 TOJI — Pool QuickSwap (bloqueado)</div>
+        </div>
+
+        <div class="token-bar-item">
+          <div class="token-bar-header">
+            <span class="token-bar-name">🔵 Sistema de Recompensa</span>
+            <span class="token-bar-pct">30%</span>
+          </div>
+          <div class="token-bar-track">
+            <div class="token-bar-fill blue" data-width="30"></div>
+          </div>
+          <div class="token-bar-desc">300.000 TOJI — Distribuídos via claims</div>
+        </div>
+
+        <div class="token-bar-item">
+          <div class="token-bar-header">
+            <span class="token-bar-name">🟢 Desenvolvimento</span>
+            <span class="token-bar-pct">15%</span>
+          </div>
+          <div class="token-bar-track">
+            <div class="token-bar-fill teal" data-width="15"></div>
+          </div>
+          <div class="token-bar-desc">150.000 TOJI — Time e infraestrutura</div>
+        </div>
+
+        <div class="token-bar-item">
+          <div class="token-bar-header">
+            <span class="token-bar-name">🔴 Marketing</span>
+            <span class="token-bar-pct">5%</span>
+          </div>
+          <div class="token-bar-track">
+            <div class="token-bar-fill pink" data-width="5"></div>
+          </div>
+          <div class="token-bar-desc">50.000 TOJI — Campanhas e parcerias</div>
+        </div>
+      </div>
+
+      <div class="token-chart-wrapper fade-in">
+        <div class="token-chart">
+          <svg class="donut-svg" viewBox="0 0 200 200" width="280" height="280">
+            <circle cx="100" cy="100" r="80" fill="none" stroke="var(--border)" stroke-width="28"/>
+            <!-- 50% purple -->
+            <circle cx="100" cy="100" r="80" fill="none" stroke="url(#g1)" stroke-width="28"
+              stroke-dasharray="251.2 502.4" stroke-dashoffset="0" class="donut-segment"/>
+            <!-- 30% blue -->
+            <circle cx="100" cy="100" r="80" fill="none" stroke="url(#g2)" stroke-width="28"
+              stroke-dasharray="150.72 502.4" stroke-dashoffset="-251.2" class="donut-segment"/>
+            <!-- 15% teal -->
+            <circle cx="100" cy="100" r="80" fill="none" stroke="url(#g3)" stroke-width="28"
+              stroke-dasharray="75.36 502.4" stroke-dashoffset="-401.92" class="donut-segment"/>
+            <!-- 5% pink -->
+            <circle cx="100" cy="100" r="80" fill="none" stroke="url(#g4)" stroke-width="28"
+              stroke-dasharray="25.12 502.4" stroke-dashoffset="-477.28" class="donut-segment"/>
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#4a1a8a"/>
+                <stop offset="100%" stop-color="#7b2fff"/>
+              </linearGradient>
+              <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#1a4a8a"/>
+                <stop offset="100%" stop-color="#2b7fff"/>
+              </linearGradient>
+              <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#0a4a3a"/>
+                <stop offset="100%" stop-color="#00c8a0"/>
+              </linearGradient>
+              <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#4a0a2a"/>
+                <stop offset="100%" stop-color="#ff2b7f"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="chart-center">
+            <div class="chart-center-value">1M</div>
+            <div class="chart-center-label">Total Supply</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tokenomics-stats fade-in">
+      <div class="tstat">
+        <div class="tstat-value">1.000.000</div>
+        <div class="tstat-label">Supply Máximo</div>
+      </div>
+      <div class="tstat">
+        <div class="tstat-value">Nenhum</div>
+        <div class="tstat-label">Minting Adicional</div>
+      </div>
+      <div class="tstat">
+        <div class="tstat-value">Polygon</div>
+        <div class="tstat-label">Blockchain</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================
+     CONTRACT
+     ==================================================== -->
+<section class="section contract-section" id="contrato">
+  <div class="container">
+    <div class="section-label">Transparência Total</div>
+    <h2 class="section-title">Contrato Verificado</h2>
+    <p class="section-subtitle">Código open-source, auditável e verificado no Polygonscan. Zero surpresas.</p>
+
+    <div class="contract-card fade-in">
+      <div class="contract-label">Endereço do Token TOJI</div>
+      <div class="address-box">
+        <div class="address-text" id="contractAddrDisplay">0x2fCFd0596A524A75987468F751Ed0bC8e39c6730</div>
+        <button class="copy-btn" onclick="copyAddress()" title="Copiar endereço">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>
+
+      <div class="contract-actions">
+        <a href="https://polygonscan.com/token/0x2fCFd0596A524A75987468F751Ed0bC8e39c6730"
+           target="_blank" rel="noopener" class="btn btn-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Ver no Polygonscan
+        </a>
+        <button class="btn btn-outline" onclick="addTokenToWallet()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Adicionar à MetaMask
+        </button>
+        <button class="btn btn-ghost" onclick="copyAddress()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copiar Endereço
+        </button>
+      </div>
+
+      <div class="contract-meta">
+        <div>
+          <div class="meta-item-label">Decimais</div>
+          <div class="meta-item-value">18</div>
+        </div>
+        <div>
+          <div class="meta-item-label">Chain ID</div>
+          <div class="meta-item-value">137 (Polygon)</div>
+        </div>
+        <div>
+          <div class="meta-item-label">Símbolo</div>
+          <div class="meta-item-value">TOJI</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================
+     SOCIAL
+     ==================================================== -->
+<section class="section social-section" id="redes">
+  <div class="container">
+    <div class="section-label">Comunidade</div>
+    <h2 class="section-title">Junte-se à<br>família TOJI</h2>
+    <p class="section-subtitle">Siga nossas redes para novidades, atualizações e acesso antecipado a recursos exclusivos.</p>
+
+    <div class="social-grid">
+      <a href="https://twitter.com" target="_blank" rel="noopener" class="social-card fade-in">
+        <div class="social-icon twitter">𝕏</div>
+        <div class="social-name">Twitter / X</div>
+        <div class="social-handle">@TojiToken</div>
+      </a>
+      <a href="https://t.me" target="_blank" rel="noopener" class="social-card fade-in">
+        <div class="social-icon telegram">✈</div>
+        <div class="social-name">Telegram</div>
+        <div class="social-handle">t.me/TojiToken</div>
+      </a>
+      <a href="https://discord.gg" target="_blank" rel="noopener" class="social-card fade-in">
+        <div class="social-icon discord">◎</div>
+        <div class="social-name">Discord</div>
+        <div class="social-handle">discord.gg/toji</div>
+      </a>
+      <a href="#" class="social-card fade-in">
+        <div class="social-icon web">⬡</div>
+        <div class="social-name">Site Oficial</div>
+        <div class="social-handle">tojitoken.io</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================
+     FOOTER
+     ==================================================== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#hero" class="navbar-logo" style="font-size: 22px;">
+          <div class="logo-icon">T</div>
+          TOJI TOKEN
+        </a>
+        <p>Token descentralizado na Polygon Network. Earn, Trade, Dominate. Nenhum projeto de investimento. DYOR.</p>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Navegação</div>
+        <ul class="footer-links">
+          <li><a href="#comprar">Comprar TOJI</a></li>
+          <li><a href="#ganhar">Ganhar TOJI</a></li>
+          <li><a href="#tokenomics">Tokenomics</a></li>
+          <li><a href="#contrato">Contrato</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Links</div>
+        <ul class="footer-links">
+          <li><a href="https://quickswap.exchange/#/swap?outputCurrency=0x2fCFd0596A524A75987468F751Ed0bC8e39c6730" target="_blank" rel="noopener">QuickSwap</a></li>
+          <li><a href="https://polygonscan.com/token/0x2fCFd0596A524A75987468F751Ed0bC8e39c6730" target="_blank" rel="noopener">Polygonscan</a></li>
+          <li><a href="https://polygon.technology" target="_blank" rel="noopener">Polygon Network</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2025 TOJI Token. Todos os direitos reservados.</span>
+      <span>Este site é apenas informativo. Não é conselho financeiro.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ====================================================
+     JAVASCRIPT
+     ==================================================== -->
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const TOKEN_ADDRESS  = "0x2fCFd0596A524A75987468F751Ed0bC8e39c6730";
+const POLYGON_CHAIN  = "0x89"; // 137 decimal
+const POLYGON_RPC    = "https://polygon-rpc.com";
+
+// Minimal ERC-20 ABI for token + reward ABI
+const ERC20_ABI = [
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function balanceOf(address) view returns (uint256)"
+];
+
+// Reward contract ABI (assumes same address or adjust below)
+const REWARD_ABI = [
+  "function claimReward() external",
+  "function cooldown() view returns (uint256)",
+  "function lastClaim(address) view returns (uint256)"
+];
+
+// ⚠️ If RewardSystem contract is at a different address, change below
+const REWARD_ADDRESS = "0x8142a4668507dC3c7F64Ff55609C5955f4d23530";
+
+let provider = null;
+let signer   = null;
+let userAddr = null;
+let cooldownTimer = null;
+
+// ============================================================
+// NAVBAR SCROLL
+// ============================================================
+const navbar = document.getElementById("navbar");
+window.addEventListener("scroll", () => {
+  navbar.classList.toggle("scrolled", window.scrollY > 40);
+});
+
+// ============================================================
+// MOBILE NAV
+// ============================================================
+function openMobileNav() {
+  document.getElementById("mobileNav").classList.add("open");
+  document.getElementById("navOverlay").classList.add("open");
+}
+function closeMobileNav() {
+  document.getElementById("mobileNav").classList.remove("open");
+  document.getElementById("navOverlay").classList.remove("open");
+}
+
+// ============================================================
+// TOAST SYSTEM
+// ============================================================
+function showToast(type, title, msg, duration = 4000) {
+  const icons = { success: "✅", error: "❌", info: "💜", warning: "⚠️" };
+  const container = document.getElementById("toastContainer");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.innerHTML = `
+    <div class="toast-icon">${icons[type] || "ℹ️"}</div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      ${msg ? `<div class="toast-msg">${msg}</div>` : ""}
+    </div>`;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = "0";
+    el.style.transform = "translateX(20px)";
+    el.style.transition = "all 0.4s ease";
+    setTimeout(() => el.remove(), 400);
+  }, duration);
+}
+
+// ============================================================
+// WALLET CONNECTION
+// ============================================================
+async function connectWallet() {
+  if (typeof window.ethereum === "undefined") {
+    showToast("error", "MetaMask não encontrada", "Instale a extensão MetaMask no seu navegador.");
+    return;
+  }
+
+  const btn = document.getElementById("walletBtn");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Conectando...`;
+
+  try {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+
+    // Check / switch network
+    const network = await provider.getNetwork();
+    if (network.chainId !== 137) {
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: POLYGON_CHAIN }]
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: POLYGON_CHAIN,
+              chainName: "Polygon Mainnet",
+              rpcUrls: [POLYGON_RPC],
+              nativeCurrency: { name: "MATIC", symbol: "MATIC", decimals: 18 },
+              blockExplorerUrls: ["https://polygonscan.com"]
+            }]
+          });
+        } else {
+          throw switchError;
+        }
+      }
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+    }
+
+    signer  = provider.getSigner();
+    userAddr = await signer.getAddress();
+
+    // Update UI
+    const short = userAddr.slice(0,6) + "..." + userAddr.slice(-4);
+    btn.style.display = "none";
+    const display = document.getElementById("walletDisplay");
+    display.style.display = "block";
+    display.className = "wallet-address";
+    display.textContent = short;
+    document.getElementById("connectedAddr").textContent = userAddr;
+
+    showToast("success", "Carteira Conectada!", `${short} na Polygon.`);
+    checkCooldown();
+
+  } catch (err) {
+    console.error(err);
+    showToast("error", "Erro ao conectar", err.message || "Tente novamente.");
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20L16 3z"/></svg> Conectar Carteira`;
+  }
+}
+
+// ============================================================
+// COOLDOWN CHECK
+// ============================================================
+async function checkCooldown() {
+  if (!signer || !userAddr) return;
+
+  const claimBtn = document.getElementById("claimBtn");
+
+  try {
+    const contract = new ethers.Contract(REWARD_ADDRESS, REWARD_ABI, provider);
+    const [cooldownSecs, lastClaimTime] = await Promise.all([
+      contract.cooldown(),
+      contract.lastClaim(userAddr)
+    ]);
+
+    const cooldownMs = cooldownSecs.toNumber() * 1000;
+    const lastMs     = lastClaimTime.toNumber() * 1000;
+    const now        = Date.now();
+    const nextClaim  = lastMs + cooldownMs;
+    const remaining  = nextClaim - now;
+
+    updateCooldownUI(remaining, cooldownMs, claimBtn);
+
+    if (cooldownTimer) clearInterval(cooldownTimer);
+    if (remaining > 0) {
+      cooldownTimer = setInterval(() => {
+        const r = nextClaim - Date.now();
+        updateCooldownUI(r, cooldownMs, claimBtn);
+        if (r <= 0) clearInterval(cooldownTimer);
+      }, 1000);
+    }
+  } catch (err) {
+    console.warn("Cooldown check failed (contrato pode não ter essas funções):", err.message);
+    // Fallback — just enable the button
+    claimBtn.disabled = false;
+    claimBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Claim Reward`;
+    document.getElementById("cooldownText").textContent = "Pronto para claim!";
+    document.getElementById("cooldownProgress").style.width = "100%";
+    document.getElementById("nextClaimDisplay").textContent = "Agora";
+  }
+}
+
+function updateCooldownUI(remaining, cooldownMs, btn) {
+  const progress = document.getElementById("cooldownProgress");
+  const text     = document.getElementById("cooldownText");
+  const nextDisp = document.getElementById("nextClaimDisplay");
+
+  if (remaining <= 0) {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Claim Reward`;
+    progress.style.width = "100%";
+    text.textContent     = "✅ Pronto para claim!";
+    nextDisp.textContent  = "Agora";
+  } else {
+    const pct = ((cooldownMs - remaining) / cooldownMs) * 100;
+    const m   = Math.floor(remaining / 60000);
+    const s   = Math.floor((remaining % 60000) / 1000);
+    const timeStr = `${m}m ${String(s).padStart(2,"0")}s`;
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span> Aguardando ${timeStr}`;
+    progress.style.width = `${Math.max(pct, 2)}%`;
+    text.textContent     = `Próximo claim em: ${timeStr}`;
+    nextDisp.textContent  = timeStr;
+  }
+}
+
+// ============================================================
+// CLAIM REWARD
+// ============================================================
+async function claimReward() {
+  if (!signer) {
+    showToast("info", "Conecte sua carteira", "É necessário conectar a MetaMask.");
+    connectWallet();
+    return;
+  }
+
+  const btn = document.getElementById("claimBtn");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span> Processando...`;
+
+  try {
+    const contract = new ethers.Contract(REWARD_ADDRESS, REWARD_ABI, signer);
+    const tx = await contract.claimReward();
+    showToast("info", "Transação enviada!", "Aguardando confirmação na Polygon...");
+
+    await tx.wait();
+
+    const earned = document.getElementById("totalEarned");
+    earned.textContent = (parseFloat(earned.textContent) || 0) + 10 + " TOJI";
+
+    showToast("success", "Claim realizado! 🎉", "Seus tokens TOJI foram enviados para sua carteira.");
+    checkCooldown();
+
+  } catch (err) {
+    console.error(err);
+    if (err.code === 4001) {
+      showToast("warning", "Transação cancelada", "Você recusou a transação.");
+    } else {
+      showToast("error", "Erro no Claim", err.reason || err.message || "Tente novamente.");
+    }
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Claim Reward`;
+  }
+}
+
+// ============================================================
+// ADD TOKEN TO WALLET
+// ============================================================
+async function addTokenToWallet() {
+  if (typeof window.ethereum === "undefined") {
+    showToast("error", "MetaMask não encontrada", "Instale a extensão MetaMask.");
+    return;
+  }
+  try {
+    await window.ethereum.request({
+      method: "wallet_watchAsset",
+      params: {
+        type: "ERC20",
+        options: {
+          address:  TOKEN_ADDRESS,
+          symbol:   "TOJI",
+          decimals: 18,
+          image:    ""
+        }
+      }
+    });
+    showToast("success", "Token adicionado!", "TOJI foi adicionado à sua MetaMask.");
+  } catch (err) {
+    showToast("error", "Erro", err.message || "Tente manualmente.");
+  }
+}
+
+// ============================================================
+// COPY ADDRESS
+// ============================================================
+function copyAddress() {
+  navigator.clipboard.writeText(TOKEN_ADDRESS).then(() => {
+    showToast("success", "Endereço copiado!", TOKEN_ADDRESS.slice(0,20) + "...");
+  });
+}
+
+// ============================================================
+// PRICE FETCH (via GeckoTerminal / fallback)
+// ============================================================
+async function fetchPrice() {
+  try {
+    const url = `https://api.geckoterminal.com/api/v2/networks/polygon_pos/tokens/${TOKEN_ADDRESS}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    const price = parseFloat(data?.data?.attributes?.price_usd);
+    if (!isNaN(price)) {
+      document.getElementById("priceVal").textContent = price < 0.01
+        ? `$${price.toFixed(8)}`
+        : `$${price.toFixed(4)}`;
+      document.getElementById("priceChange").textContent = "Em tempo real";
+      document.getElementById("priceChange").style.color = "var(--success)";
+    } else {
+      document.getElementById("priceVal").textContent = "Ver DEX";
+      document.getElementById("priceChange").textContent = "QuickSwap";
+    }
+  } catch {
+    document.getElementById("priceVal").textContent = "Ver DEX";
+    document.getElementById("priceChange").textContent = "QuickSwap";
+  }
+}
+
+// ============================================================
+// SIMULATED USER COUNT
+// ============================================================
+function animateUserCount() {
+  const el = document.getElementById("userCountStat");
+  let count = 0;
+  const target = 1247;
+  const step = Math.ceil(target / 80);
+  const timer = setInterval(() => {
+    count = Math.min(count + step, target);
+    el.textContent = count.toLocaleString("pt-BR");
+    if (count >= target) clearInterval(timer);
+  }, 20);
+}
+
+// ============================================================
+// INTERSECTION OBSERVER — Animations
+// ============================================================
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add("visible");
+      // Animate bars
+      e.target.querySelectorAll(".token-bar-fill[data-width]").forEach(bar => {
+        setTimeout(() => {
+          bar.style.width = bar.dataset.width + "%";
+        }, 200);
+      });
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));
+
+// ============================================================
+// ACCOUNT / CHAIN CHANGE LISTENERS
+// ============================================================
+if (typeof window.ethereum !== "undefined") {
+  window.ethereum.on("accountsChanged", (accounts) => {
+    if (accounts.length === 0) {
+      userAddr = null; signer = null; provider = null;
+      document.getElementById("walletBtn").style.display = "";
+      document.getElementById("walletDisplay").style.display = "none";
+      document.getElementById("connectedAddr").textContent = "Não conectada";
+    } else {
+      connectWallet();
+    }
+  });
+
+  window.ethereum.on("chainChanged", () => window.location.reload());
+}
+
+// ============================================================
+// INIT
+// ============================================================
+fetchPrice();
+animateUserCount();
+setInterval(fetchPrice, 60000);
+</script>
+</body>
+</html>
